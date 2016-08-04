@@ -1,4 +1,4 @@
-package kway;
+//package kway;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,31 +9,38 @@ import java.util.LinkedList;
 
 public class MergeRuns {
 	
-	static MinHeap dataProc = new MinHeap();
+	
 		
 	public static void main(String args[]) throws IOException {
-			
-		//int k = args.length > 0 ? Integer.parseInt(args[0]) : 5;
-		int k = 4;
+
+		int k = args.length > 0 ? Integer.parseInt(args[0]) : 4;
+		//int k = 7;
+		
+		MinHeap dataProc = new MinHeap(k);
+		
 		DiskContext dc = new DiskContext(k);		
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 	    String s;
 	    int writeIdx = 0;
 
-	    String[] test = {"n", "o", "p", "*",
-	    				 "g","*",
-	    				 "h", "i", "j", "k", "*", 
-	    				 "d", "e", "f", "*",
-	    				 "l", "m", "*",
-	    				 "a", "b", "c", "*"};
+//	    String[] test = {"n", "o", "p", "*",
+//	    				 "g","*",
+//	    				 "h", "i", "j", "k", "*", 
+//	    				 "d", "e", "f", "*",
+//	    				 "l", "m", "*",
+//	    				 "a", "b", "c", "*"};
 	    
 	    // Read stdin and record runs into iterative files
-	    //while ((s = in.readLine()) != null && s.length() != 0) {
-	    // Testing loop
 	    int totalRuns = 0;
-	    for(int i = 0; i < test.length; ++i) {
-	        s = test[i]; 	
-	    	if(s.compareTo("*") == 0) {
+		
+	    while ((s = in.readLine()) != null) {
+	    if(s.length() == 0) continue;
+	    //System.out.println(s);
+	    // Testing loop
+	    //for(int i = 0; i < test.length; ++i) {
+	     //   s = test[i]; 	
+	    	if(s.compareTo("NEW RUN NEW RUN") == 0) {
+	    		
 	    		dc.finishRun(writeIdx);
 	    		writeIdx = ( writeIdx + 1 ) % k;
 	    		totalRuns++;
@@ -85,4 +92,3 @@ public class MergeRuns {
 		}
 	}
 }
-

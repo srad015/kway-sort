@@ -1,38 +1,53 @@
-package kway;
+//package kway;
 
 import java.util.Arrays;
 
 public class MinHeap {
-    private static final int DEFAULT_CAPACITY = 100;
-    protected String[] array;
-    protected int size;
+	/**
+	 * DATA
+	 */
+    private String[] array;
+    private int size;
     
-	public MinHeap () {
-        // Java doesn't allow construction of arrays of placeholder data types 
-        array = new String[DEFAULT_CAPACITY];  
+    /**
+     * Constructor
+     */
+	public MinHeap (int capacity) {
+
+        array = new String[capacity];  
         size = 0;
     }
     
-    public void add(String value) {
-        // grow array if needed
+	/**
+	 * Input item into heap and grow 
+	 * array if required
+	 * @param in		Item to be added to heap
+	 */
+    public void add(String in) {
+       
         if (size >= array.length - 1) {
             array = this.resize();
         }        
         
-        // place element into heap at bottom
+        // Place item into heap at bottom
         size++;
-        int index = size;
-        array[index] = value;
+        array[size] = in;
         
-        bubbleUp();
+        upHeap();
     }
     
-    
+    /**
+     * Whether nothing has been added to heap
+     * @return		Truth value re above
+     */
     public boolean isEmpty() {
         return size == 0;
     }
 
-    
+    /**
+     * Get top item of heap without removing it
+     * @return		Top item of heap
+     */
     public String peek() {
         if (this.isEmpty()) {
             throw new IllegalStateException();
@@ -41,110 +56,115 @@ public class MinHeap {
         return array[1];
     }
 
-    
+    /**
+     * Get top item of heap and remove it from the heap
+     * @return		Top item of the heap
+     */
     public String remove() {
-    	// what do want return?
-    	String result = peek();
+
+    	String topItem = peek();
     	
-    	// get rid of the last leaf/decrement
+    	// Swap current top with bottom item
+    	// and remove new bottom item
     	array[1] = array[size];
     	array[size] = null;
     	size--;
     	
-    	bubbleDown();
+    	downHeap();
     	
-    	return result;
+    	return topItem;
     }
     
+    /**
+     * INTERNALS
+     */
     
-    public String toString() {
-        return Arrays.toString(array);
-    }
-
-    
-
-    protected void bubbleDown() {
+    /**
+     * Sweep a value that is not the smallest down the heap
+     * Executed when removing item
+     */
+    private void downHeap() {
         int index = 1;
         
-        // bubble down
+        // Go downwards
         while (hasLeftChild(index)) {
-            // which of my children is smaller?
-            int smallerChild = leftIndex(index);
+            // Find smaller child
+            int smallChild = leftIndex(index);
             
-            // bubble with the smaller child, if I have a smaller child
+            // Go downwards with smaller child if possible
             if (hasRightChild(index)
                 && array[leftIndex(index)].compareTo(array[rightIndex(index)]) > 0) {
-                smallerChild = rightIndex(index);
+            	smallChild = rightIndex(index);
             } 
             
-            if (array[index].compareTo(array[smallerChild]) > 0) {
-                swap(index, smallerChild);
-            } else {
-                // otherwise, get outta here!
+            if (array[index].compareTo(array[smallChild]) > 0) {
+                swap(index, smallChild);
+            } else {                
                 break;
             }
-            
-            // make sure to update loop counter/index of where last el is put
-            index = smallerChild;
+             
+            index = smallChild;
         }        
     }
     
-    
-    protected void bubbleUp() {
-        int index = this.size;
+    /**
+     * Sweep newly added item up the heap
+     * based on its value
+     */
+    private void upHeap() {
+        int idx = this.size;
         
-        while (hasParent(index)
-                && (parent(index).compareTo(array[index]) > 0)) {
-            // parent/child are out of order; swap them
-            swap(index, parentIndex(index));
-            index = parentIndex(index);
+        while (hasParent(idx) && (parent(idx).compareTo(array[idx]) > 0)) {
+            // Swap if parent and child out of order
+            swap(idx, parentIndex(idx));
+            idx = parentIndex(idx);
         }        
     }
     
     
-    protected boolean hasParent(int i) {
+    private boolean hasParent(int i) {
         return i > 1;
     }
     
     
-    protected int leftIndex(int i) {
+    private int leftIndex(int i) {
         return i * 2;
     }
     
     
-    protected int rightIndex(int i) {
+    private int rightIndex(int i) {
         return i * 2 + 1;
     }
     
     
-    protected boolean hasLeftChild(int i) {
+    private boolean hasLeftChild(int i) {
         return leftIndex(i) <= size;
     }
     
     
-    protected boolean hasRightChild(int i) {
+    private boolean hasRightChild(int i) {
         return rightIndex(i) <= size;
     }
     
     
-    protected String parent(int i) {
+    private String parent(int i) {
         return array[parentIndex(i)];
     }
     
     
-    protected int parentIndex(int i) {
+    private int parentIndex(int i) {
         return i / 2;
     }
     
     
-    protected String[] resize() {
+    private String[] resize() {
         return Arrays.copyOf(array, array.length * 2);
     }
     
     
-    protected void swap(int index1, int index2) {
-    	String tmp = array[index1];
+    private void swap(int index1, int index2) {
+    	String temp = array[index1];
         array[index1] = array[index2];
-        array[index2] = tmp;        
+        array[index2] = temp;        
     }
 }
