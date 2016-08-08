@@ -1,4 +1,10 @@
-//package kway;
+/**
+ * Srdjan (Serge) Radinovich 
+ * 1298923
+ * COMP317 
+ * Assignment 1 - K-way Sort
+ */
+
 import java.io.IOException;
 
 /**
