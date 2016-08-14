@@ -19,6 +19,7 @@ public class MergeRuns {
 
 		// Read in k value if one is provided, otherwise default value
 		int k = args.length > 0 ? Integer.parseInt(args[0]) : 4;
+		if(k == 1) k = 2;
 		
 		// Disallow more than 2000 files to be requested (files = 2*k)
 		if(k > 1000){
@@ -48,11 +49,11 @@ public class MergeRuns {
 	    		writeIdx = ( writeIdx + 1 ) % k;
 	    		totalRuns++;
 	    	} else {
-	    		// Our device context abstracts away the file writes
+	    		// Our device context abstracts away the file writes	    		
 	    		dc.write(writeIdx, s);
 	    	}
 	    }
-	    
+	    dc.finishRun(writeIdx);
 	    // Instantiate list to gather final output as we go
 	    LinkedList<String> result = new LinkedList<String>();
 	    

@@ -57,7 +57,7 @@ public class DiskContext {
 	 * @throws IOException
 	 */
 	public void write(int fileIdx, String in) throws IOException {
-		int buffOffset = outIdx * _k;
+		int buffOffset = outIdx * _k;	
 		fileCtxs[buffOffset + fileIdx].write(in);
 
 	}
