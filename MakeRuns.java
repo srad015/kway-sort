@@ -24,9 +24,9 @@ public class MakeRuns
     {
       //get the inputted heap size
       heapMax = Integer.parseInt(args[0]);
-      if(heapMax <= 0)
+      if(heapMax <= 1)
       {
-        System.out.println("[-1] 0 or negative heap size" );
+        System.out.println("[-1] Heap size must be greater than 1" );
         return;
       }
     }
@@ -38,15 +38,8 @@ public class MakeRuns
     }
 
     //create the heap
-    Comparator<String> comparator = new lexiCompareStrings();
-    PriorityQueue<String> lineHeap = new PriorityQueue<String>(heapMax, comparator);
-
-    //create the list
-    ArrayList<String> lineList = new ArrayList<String>();
-
-    //create variables for keeping track of heap length
-    int heapLength = 0;
-    int currentHeapMax = heapMax;
+    MinHeap lineHeap = new MinHeap(heapMax);
+    
     //create variables for string storage
     String lastOutput = null;
     String input = null;
@@ -65,67 +58,48 @@ public class MakeRuns
           input = br.readLine();
 
           //if this input would fill the heap
-          if(heapLength == (currentHeapMax-1) && lastOutput != null)
+          if(lineHeap.full() == false && lastOutput != null)
           {
             //if the input is smaller than the lastOutput
             if(input.compareTo(lastOutput) < 0)
             {
-              //put it in the list and shrink the heap by one
-              //System.out.println("List: " + input);
-              lineList.add(input);
-              currentHeapMax--;
-              input = lineHeap.peek();
+              //put it in the back portion
+              lineHeap.toEnd(input, 0); //System.out.println("End: " + input);
             }
             else
             {
-              //add the input to the heap and inc heapLength
-              //System.out.println("Read: " + input);
-              lineHeap.add(input);
-              heapLength++;
+              //add the input to the heap
+              lineHeap.add(input, 0); //System.out.println("Read: " + input);
             }
           }
-          else
+          else if(lineHeap.full() == false)
           {
-            //add the input to the heap and inc heapLength
-            //System.out.println("Read: " + input);
-            lineHeap.add(input);
-            heapLength++;
+            //add the input to the heap
+            lineHeap.add(input, 0); //System.out.println("Read: " + input);
           }
 
-          //remake heap from list if list is full
-          if(currentHeapMax == 0)
+          //remake heap from backportion if it reaches the end
+          if(lineHeap.isEmpty())
           {
-            //System.out.println("LIST FULL");
-            currentHeapMax = heapMax;
-            while(lineList.isEmpty() == false)
-            {
-              //input is used as string storage to minimise variables
-              input = lineList.get(0);
-              lineList.remove(input);
-              lineList.trimToSize();
-              lineHeap.add(input);
-            }
+            lineHeap.makeMax();
             System.out.println(NEW_RUN);
             lastOutput = null;
-            heapLength = lineHeap.size();
           }
 
           //if heap is full
-          if(heapLength >= currentHeapMax)
+          if(lineHeap.full())
           {
             //lastOutput is null if at start of new run
             if(lastOutput == null)
             {
-              lastOutput = lineHeap.peek();
-              System.out.println(lineHeap.poll());
-              heapLength--;
+              lastOutput = lineHeap.peek().getLine();
+              System.out.println(lineHeap.remove().getLine());
             }
             //this is seperate from the null check as you cannot .compareTo(null)
-            else if(input.compareTo(lastOutput) >= 0)
+            else if(lineHeap.peek().getLine().compareTo(lastOutput) >= 0)
             {
-              lastOutput = lineHeap.peek();
-              System.out.println(lineHeap.poll());
-              heapLength--;
+              lastOutput = lineHeap.peek().getLine();
+              System.out.println(lineHeap.remove().getLine());
             }
             else //if here then at end of run
             {
@@ -137,20 +111,17 @@ public class MakeRuns
         }
 
         //output the rest of memory while there is data to output
-
-        while(heapLength != 0)
+        while(lineHeap.isEmpty() == false)
         {
           if(lastOutput == null)
             {
-              lastOutput = lineHeap.peek();
-              System.out.println(lineHeap.poll());
-              heapLength--;
+              lastOutput = lineHeap.peek().getLine();
+              System.out.println(lineHeap.remove().getLine());
             }
-            else if(lineHeap.peek().compareTo(lastOutput) >= 0)
+            else if(lineHeap.peek().getLine().compareTo(lastOutput) >= 0)
             {
-                  lastOutput = lineHeap.peek();
-                  System.out.println(lineHeap.poll());
-                  heapLength--;
+                  lastOutput = lineHeap.peek().getLine();
+                  System.out.println(lineHeap.remove().getLine());
             }
             else
             {
@@ -159,45 +130,33 @@ public class MakeRuns
             }
         }
 
-        //if there is data in the list move it the heap and output it
-        if(lineList.size() != 0)
+        //if there is data left in the back move it to the heap and output it
+        if(lineHeap.hasBack())
         {
-            //System.out.println("LIST FULL");
-            currentHeapMax = heapMax;
-            while(lineList.isEmpty() == false)
-            {
-              //input is used as string storage to minimise variables
-              input = lineList.get(0);
-              lineList.remove(input);
-              lineList.trimToSize();
-              lineHeap.add(input);
-            }
             System.out.println(NEW_RUN);
-            //numRuns++;
+            lineHeap.makeMax();
             lastOutput = null;
-            heapLength = lineHeap.size();
 
-            while(heapLength != 0)
+            while(lineHeap.isEmpty() == false)
             {
               if(lastOutput == null)
                 {
-                  lastOutput = lineHeap.peek();
-                  System.out.println(lineHeap.poll());
-                  heapLength--;
+                  lastOutput = lineHeap.peek().getLine();
+                  System.out.println(lineHeap.remove().getLine());
                 }
-                else if(lineHeap.peek().compareTo(lastOutput) >= 0)
+                else if(lineHeap.peek().getLine().compareTo(lastOutput) >= 0)
                 {
-                      lastOutput = lineHeap.peek();
-                      System.out.println(lineHeap.poll());
-                      heapLength--;
+                      lastOutput = lineHeap.peek().getLine();
+                      System.out.println(lineHeap.remove().getLine());
                 }
                 else
                 {
-                  System.out.println(NEW_RUN);
                   lastOutput = null;
+                  System.out.println(NEW_RUN);
                 }
             }
         }
+
       } catch (IOException e) { //catch IO exceptions
             e.printStackTrace();
         } finally {
@@ -210,23 +169,4 @@ public class MakeRuns
             }
         }
   }
-}
-
-class lexiCompareStrings implements Comparator<String>
-{
-    //compare the strings based on lexi order
-    @Override
-    public int compare(String x, String y)
-    {
-        if (x.compareTo(y) < 0)
-        {
-            return -1;
-        }
-        if (x.compareTo(y) > 0)
-        {
-            return 1;
-        }
-        //if here strings are equal
-        return 0;
-    }
 }

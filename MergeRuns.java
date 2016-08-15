@@ -26,8 +26,6 @@ public class MergeRuns {
 			throw new IOException("Too many merge files specified (k = 1000 is maximum)");
 		}
 		
-		// Instantiate our helpful heap
-		MinHeap dataProc = new MinHeap(k);
 		
 		// Instantiate our interface to the file system and 
 		// the runs on disk
@@ -38,6 +36,7 @@ public class MergeRuns {
 	    int writeIdx = 0;
 	    int totalRuns = 0;		    
 	    String s;
+
 	    while ((s = in.readLine()) != null) {
 	    	// Ignore empty runs
 	    	if(s.length() == 0) continue;
@@ -56,10 +55,11 @@ public class MergeRuns {
 	    dc.finishRun(writeIdx);
 	    // Instantiate list to gather final output as we go
 	    LinkedList<String> result = new LinkedList<String>();
+	    MinHeap dataProc = new MinHeap(k+1);
 	    
 	    // Get k-tuples of runs from disk, merge them, save to disk again as one run
     	// Add every file's top element to heap    			 
-		for(int mergeRun = totalRuns; mergeRun >= 1; mergeRun = (mergeRun + k - 1) / k){
+		for(int mergeRun = totalRuns; mergeRun >= 1; mergeRun = (mergeRun + k - 1) / k) {
 			
 			// Our device context needs to keep track of which run we are processing
 			int runIter = 0;
@@ -79,20 +79,29 @@ public class MergeRuns {
 		    		String headItem = dc.getHeadElement(fileIdx, runIter);
 		    		
 		    		if(headItem != null) {
-		    			dataProc.add(headItem);
+		    			dataProc.add(headItem, fileIdx);
 		    		}
 		    	}  	
 		    	
+		    	// After initial read, we proceed with the following algorithm
+		    	while(!dataProc.isEmpty()) {
+
+		    		HeapEntry heapItem = dataProc.remove();
+		    		dc.write(writeIdx, heapItem.getLine());
+		    		String headItem = dc.getHeadElement(heapItem.getIndex(), runIter);
+
+		    		if(headItem != null) {
+		    			dataProc.add(headItem, heapItem.getIndex());
+		    		}
+		    		// Record final result for stdout
+		    		if(mergeRun <= 2) {
+		    			result.add(heapItem.getLine());
+		    		}
+		    	}
+		    	
 		    	//Write heap as run
 		    	if(dc.runReadComplete(runIter)) {
-		    		while(!dataProc.isEmpty()) {
-			    		String heapItem = dataProc.remove();
-			    		dc.write(writeIdx, heapItem);
-			    		// Record final result for stdout
-			    		if(mergeRun <= 2) {
-			    			result.add(heapItem);
-			    		}
-			    	}
+		    		
 		    		// We must always indicate when we have no more 
 		    		// data for our current output buffer
 			    	dc.finishRun(writeIdx);
