@@ -52,9 +52,9 @@ public class MergeRuns {
 	    		dc.write(writeIdx, s);
 	    	}
 	    }
+	    
 	    dc.finishRun(writeIdx);
-	    // Instantiate list to gather final output as we go
-	    LinkedList<String> result = new LinkedList<String>();
+
 	    MinHeap dataProc = new MinHeap(k+1);
 	    
 	    // Get k-tuples of runs from disk, merge them, save to disk again as one run
@@ -93,10 +93,6 @@ public class MergeRuns {
 		    		if(headItem != null) {
 		    			dataProc.add(headItem, heapItem.getIndex());
 		    		}
-		    		// Record final result for stdout
-		    		if(mergeRun <= 2) {
-		    			result.add(heapItem.getLine());
-		    		}
 		    	}
 		    	
 		    	//Write heap as run
@@ -114,9 +110,11 @@ public class MergeRuns {
 		    if(mergeRun == 1)break;
 		}
 		
-		// Write final file to stdout
-		while(!result.isEmpty()){
-			System.out.println(result.pop());
-		}
+		dc.swapBuffers();
+		while(dc.hasInputRuns()) {
+			String headItem = dc.getHeadElement(0, 0);
+			System.out.println(headItem);
+		}	
+		
 	}
 }

@@ -10,4 +10,5 @@
 
 # notes
 
+	We do NOT output newlines for sorting!	
 	MergeRuns argument specifies the k value in the k-way sort. A maximum of 1000 is permitted. 
